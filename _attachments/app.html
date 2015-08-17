@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="mk">
+<head>
+  <meta charset="utf-8">
+  <link rel="shortcut icon" href="images/favicon.ico"/>
+  <script type="text/javascript" src="script/couchdb-lib.js"></script>
+  <script type="text/javascript">
+     // redirect _rewrite to _rewrite/
+     // to  normalize access to relative urls through the rewriter
+     if (/\/_rewrite$/.test(window.location.pathname)) {
+        window.location.pathname = window.location.pathname + "/";
+     }
+     $Couch.init().then(function(resp) {
+        if (!resp.ok) {
+           var error = document.querySelector('#error');
+           error.appendChild(document.createTextNode('Error accessing api/'));
+           alert("Probably better to call $Couch.init(true) to guesstimate the proper url");
+           return;
+        }
+        var body_list = document.querySelector('body ul');
+        for (var key in resp.data) {
+           var li = document.createElement('li');
+           var text = document.createTextNode(key + ': ' + resp.data[key]);
+           li.appendChild(text);
+           body_list.appendChild(li);
+        }
+     })
+    </script>
+  <link type="text/css" rel="stylesheet" href="style/style.css" />
+  <title>Hello World CouchApp</title>
+</head>
+<body>
+   <h4>Database info:</h4>
+   <ul></ul>
+   <div id=error></div>
+</body>
+</html>
