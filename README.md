@@ -61,9 +61,22 @@ em.stop();
 ## Push to CouchDB
 
 ```bash
-erica push dbname
+$ erica push dbname
+==> Successfully pushed. You can browse it at: http://localhost:5984/dbname/_design/helloworld/_rewrite/
 ```
 or
 ```bash
-erica push https://user:pass@db.example.net/dbname
+$ erica push https://user:pass@db.example.net/dbname
+==> Successfully pushed. You can browse it at: https://user:pass@db.example.net/dbname/_design/helloworld/_rewrite/
+```
+
+## CouchDB Vhosts
+
+See http://docs.couchdb.org/en/stable/config/http.html#config-vhosts
+
+You'd map a name to the rewrite url, for ex:
+
+```ini
+[vhosts]
+db.example.net = /dbname/_design/helloworld/_rewrite
 ```
