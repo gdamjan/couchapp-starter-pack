@@ -23,11 +23,6 @@
     }
     self.$Couch = {};
 
-    var ERRORS = {
-        'abort': new TypeError('Network request aborted'),
-        'failed': new TypeError('Network request failed')
-    }
-
     function getxhr() {
         if (self.XMLHttpRequest) {         // all normal browsers
             return new XMLHttpRequest();
@@ -55,6 +50,7 @@
           ret.push(encodeURIComponent(key) + '=' + encodeURIComponent(params[key]));
        return ret.join('&');
     }
+
     function extend(obj, props) {
         for(var prop in props) {
             if(props.hasOwnProperty(prop)) {
@@ -67,10 +63,6 @@
         if ('responseURL' in xhr) {
           return xhr.responseURL
         }
-        // Avoid security warnings on getResponseHeader when not allowed by CORS
-        if (/^X-Request-URL:/m.test(xhr.getAllResponseHeaders())) {
-          return xhr.getResponseHeader('X-Request-URL')
-        }
         return null;
     }
 
@@ -81,7 +73,7 @@
           xhr.onload = function() {
              var status = (xhr.status === 1223) ? 204 : xhr.status;
              if (status < 100 || status > 599) {
-                reject(ERRORS.failed);
+                reject(new TypeError('Network request failed'));
                 return;
              }
              var response = {};
@@ -94,7 +86,7 @@
           }
 
           xhr.onerror = function() {
-             reject(ERRORS.failed)
+             reject(new TypeError('Network request failed'))
           }
 
           xhr.onabort = function() {
@@ -108,7 +100,6 @@
           xhr.setRequestHeader('Accept', 'application/json');
           xhr.setRequestHeader('Content-Type', 'application/json');
           xhr.responseType = 'json';
-          // xhr.withCredentials = true // see about CORS support
 
           var body = typeof options.body === 'undefined' ? null : JSON.stringify(options.body);
           xhr.send(body);
@@ -144,7 +135,7 @@
         // but since we don't have an id, POST to the database
         // otherwise it's a PUT to the ./api/<id>
         var url, method;
-        if (doc === undefined) {
+        if (typeof doc === 'undefined') {
             doc = id;
             url = 'api/';
             method = 'post';
@@ -176,36 +167,65 @@
         })
     }
 
-    self.$Couch.view = function (id, query_args) {
-        var query = {
+    self.$Couch.view = function (view_id, query_args) {
+        var params = {
            update_seq: true,
            reduce: false
         }
-        extend(query, query_args);
+        extend(params, query_args);
 
         // stringify if needed
         function assure_string(obj, attr) {
             if (obj && obj[attr] && typeof obj[attr] !== "string")
                 obj[attr] = JSON.stringify(obj[attr]);
         }
-        assure_string(query, "key");
-        assure_string(query, "startkey");
-        assure_string(query, "endkey");
+        assure_string(params, "key");
+        assure_string(params, "startkey");
+        assure_string(params, "endkey");
 
-        var url = URL(['ddoc', '_view', id], query);
+//       if (query_args.limit) { params.limit = query_args.limit+1 };
+
+        var url = URL(['ddoc', '_view', view_id], params);
         return fetchJSON(url).then(function(resp) {
-           if (resp.ok) {
-              return resp.data;
-           }
-           throw new TypeError(resp.statusText);
+            if (!resp.ok) {
+                throw new TypeError(resp.statusText);
+            }
+            var page = resp.data;
+            page.next = Promise.reject;
+            page.prev = Promise.reject;
+            if (page.rows.length == 0) {
+                return page
+            }
+            var first = page.rows[0];
+            page.prev = function () {
+                var prevquery = {descending:true};
+                extend(prevquery, query_args);
+                delete prevquery['key'];
+                prevquery.startkey = JSON.stringify(first.key);
+                prevquery.startkey_docid = first.id;
+                prevquery.skip = 1;
+                return self.$Couch.view(view_id, prevquery)
+                  .then(function(page) {
+                    page.rows.reverse();
+                    return page;
+                  })
+            }
+            var last = page.rows[page.rows.length-1];
+            page.next = function () {
+               var nextquery = {};
+               extend(nextquery, query_args);
+               delete nextquery['key'];
+               nextquery.startkey = JSON.stringify(last.key);
+               nextquery.startkey_docid = last.id;
+               nextquery.skip = 1;
+               return self.$Couch.view(view_id, nextquery);
+            }
+            return page;
         })
     }
 
-    /*
-     * it'll stay subscribed to the _changes feed forever, and reconnect
-     * on errors (using an exponentional backoff). also a watchdog is started
-     * that will make sure the TCP/IP connection didn't get stuck.
-     */
+    /* changes feed handling */
+
     function tryEventSource(url, params, em) {
         params.feed = 'eventsource';
         var fullurl = URL(url, params);
@@ -262,7 +282,7 @@
        _loop(params.since); // start it the first time
     }
 
-    function fakeEventEmitter () {
+    function dummyEventEmitter () {
         var callbacks = {changes:[], error:[]};
         this.on = function (topic, fn) {
             if (topic in callbacks)
@@ -287,7 +307,7 @@
         extend(params, query_args);
 
         var url = ['api', '_changes'];
-        var em = new fakeEventEmitter();
+        var em = new dummyEventEmitter();
 
         if(!!self.EventSource) {
             tryEventSource(url, params, em);
