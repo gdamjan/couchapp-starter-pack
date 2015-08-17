@@ -16,7 +16,7 @@ Some examples:
 ```javascript
 $Couch.create({a: 'a'})
   .then( (doc) => { console.log(doc); return doc })
-  .then( (doc) => { doc.b = 'b'; return $Couch.create(doc) })
+  .then( (doc) => { doc.b = 'b'; return $Couch.update(doc) })
   .then( (doc) => { console.log(doc); return doc })
   .then( (doc) => { return $Couch.get(doc._id) })
   .then( (doc) => { console.log(doc); return doc })
