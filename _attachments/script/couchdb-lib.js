@@ -317,7 +317,7 @@
 })();
 
 /*
-Copyright (C) 2011 by Damjan Georgievski <gdamjan@gmail.com>
+Copyright (C) 2015 by Damjan Georgievski <gdamjan@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
