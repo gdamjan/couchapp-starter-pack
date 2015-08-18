@@ -189,9 +189,9 @@
                 throw new TypeError(resp.statusText);
             }
             var page = resp.data;
-            page.next = Promise.reject;
-            page.prev = Promise.reject;
             if (page.rows.length == 0) {
+                page.prev = function() { return Promise.reject(null) };
+                page.next = function() { return Promise.reject(null) };
                 return page
             }
             var first = page.rows[0];
