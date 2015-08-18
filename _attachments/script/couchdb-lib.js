@@ -183,8 +183,6 @@
         assure_string(params, "startkey");
         assure_string(params, "endkey");
 
-//       if (query_args.limit) { params.limit = query_args.limit+1 };
-
         var url = URL(['ddoc', '_view', view_id], params);
         return fetchJSON(url).then(function(resp) {
             if (!resp.ok) {
