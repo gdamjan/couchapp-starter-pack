@@ -196,8 +196,9 @@
             }
             var first = page.rows[0];
             page.prev = function () {
-                var prevquery = {descending:true};
+                var prevquery = {};
                 extend(prevquery, query_args);
+                prevquery.descending = ! query_args.descending;
                 delete prevquery['key'];
                 prevquery.startkey = JSON.stringify(first.key);
                 prevquery.startkey_docid = first.id;
