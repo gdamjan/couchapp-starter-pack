@@ -7,7 +7,8 @@ you're hitting the rewriter (which is set to app.html - don't open it directly)
  * supports EventSouce for the changes feed, falls back to long poll
  * uses promises, a polyfill would be needed for older browsers
  * uses JSON.parse and stringify, a polyfill would be needed for even older browsers
- * otherwise should work on all
+ * otherwise should work on all browsers
+ * the .js lib is 6.3kb minified (for now… excluding any polyfills)
 
 Some examples:
 
