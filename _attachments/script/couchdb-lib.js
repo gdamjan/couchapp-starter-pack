@@ -274,10 +274,10 @@
                 callbacks[topic].push(fn);
         }
         this.notify = function (rows) {
-            callbacks['changes'].forEach( function(fn) { fn(rows) });
+            callbacks.changes.forEach( function(fn) { fn(rows) });
         }
         this.error = function (err) {
-            callbacks['error'].forEach( function(fn) { fn(err) });
+            callbacks.error.forEach( function(fn) { fn(err) });
         }
 
         var this_ = this;
