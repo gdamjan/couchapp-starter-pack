@@ -254,8 +254,8 @@
 
     function longPollFallback (url, params, em) {
        params.feed = 'longpoll';
-       const TIMEOUT_SENTINEL = {};
-       const RESEND_TIMEOUT = 3 * 60 * 1000;
+       var TIMEOUT_SENTINEL = {};
+       var RESEND_TIMEOUT = 3 * 60 * 1000;
 
        function _loop (last_seq) {
           var timeout = new Promise(function(resolve, reject) {
@@ -302,7 +302,7 @@
         })
     }
 
-    const HEARTBEAT = 20 * 1000;
+    var HEARTBEAT = 20 * 1000;
     self.$Couch.changes = function (last_seq, query_args) {
         var params = {heartbeat: HEARTBEAT}
         extend(params, query_args);
