@@ -23,22 +23,6 @@
     }
     self.$Couch = {};
 
-    function getxhr() {
-        if (self.XMLHttpRequest) {         // all normal browsers
-            return new XMLHttpRequest();
-        } else if (self.ActiveXObject) { // old IE
-            try {
-                return new ActiveXObject('Msxml2.XMLHTTP');
-            }
-            catch (e) {
-                try {     // even older IE
-                    return new ActiveXObject('Microsoft.XMLHTTP');
-                }
-                catch (e) {}
-            }
-        }
-    }
-
     function URL(parts, params) {
        var qs = params ? '?' + encodeQueryString(params) : '';
        return parts.join('/') + qs;
@@ -68,7 +52,7 @@
 
     function fetchJSON(url, options) {
        return new Promise(function(resolve, reject) {
-          var xhr = getxhr();
+          var xhr = new XMLHttpRequest();
 
           xhr.onload = function() {
              var status = (xhr.status === 1223) ? 204 : xhr.status;
