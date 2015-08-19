@@ -304,8 +304,11 @@
 
     const HEARTBEAT = 20 * 1000;
     self.$Couch.changes = function (last_seq, query_args) {
-        var params = {since: last_seq, heartbeat: HEARTBEAT}
+        var params = {heartbeat: HEARTBEAT}
         extend(params, query_args);
+        if (typeof last_seq != 'undefined') {
+           params.since = last_seq
+        }
 
         var url = ['api', '_changes'];
         var em = new dummyEventEmitter();
