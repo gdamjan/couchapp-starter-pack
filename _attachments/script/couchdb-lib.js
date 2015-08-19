@@ -306,8 +306,9 @@
     self.$Couch.changes = function (last_seq, query_args) {
         var params = {heartbeat: HEARTBEAT}
         extend(params, query_args);
-        if (typeof last_seq != 'undefined') {
-           params.since = last_seq
+        params.since = last_seq
+        if (typeof params.since === 'undefined') {
+           params.since = 0;
         }
 
         var url = ['api', '_changes'];
