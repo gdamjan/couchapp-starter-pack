@@ -266,9 +266,11 @@
           var fullurl = URL(url, params);
           fetchJSON(fullurl, {canceller: stopit})
             .then(function(resp) {
-              var rows = resp.data.results;
-              em.notify(rows);
-              _loop(resp.data.last_seq);
+               if (resp.ok) {
+                  var rows = resp.data.results;
+                  em.notify(rows);
+                  _loop(resp.data.last_seq);
+               }
             })
             .catch(function(err) {
                if (err === TIMEOUT_SENTINEL) {
