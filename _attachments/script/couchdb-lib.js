@@ -182,26 +182,14 @@
             if (!resp.ok) {
                 throw new TypeError(resp.statusText);
             }
-            var page = resp.data;
-            page.prev = function () {
-                var prevquery = {};
-                extend(prevquery, query_args);
-                prevquery.descending = !query_args.descending;
-                delete prevquery['key'];
-                prevquery.skip = 1;
-                if (page.rows && page.rows[0]) {
-                    prevquery.startkey_docid = page.rows[0].id;
-                }
-                return self.$Couch.view(view_id, prevquery)
-                  .then(function(page) {
-                    page.rows.reverse();
-                    return page;
-                  })
+            return resp;
+        }).then(function(resp) {
+            if (resp.data.rows.length == 0) {
+                throw new TypeError("Empty");
             }
+            return resp.data;
+        }).then(function(page) {
             page.next = function () {
-               if (page.rows.length == 0) {
-                  return Promise.reject(null);
-               }
                var last = page.rows[page.rows.length-1];
                var nextquery = {};
                extend(nextquery, query_args);
