@@ -183,28 +183,26 @@
                 throw new TypeError(resp.statusText);
             }
             var page = resp.data;
-            if (page.rows.length == 0) {
-                page.prev = function() { return Promise.reject(null) };
-                page.next = function() { return Promise.reject(null) };
-                return page
-            }
-            var first = page.rows[0];
             page.prev = function () {
                 var prevquery = {};
                 extend(prevquery, query_args);
-                prevquery.descending = ! query_args.descending;
+                prevquery.descending = !query_args.descending;
                 delete prevquery['key'];
-                prevquery.startkey = JSON.stringify(first.key);
-                prevquery.startkey_docid = first.id;
                 prevquery.skip = 1;
+                if (page.rows && page.rows[0]) {
+                    prevquery.startkey_docid = page.rows[0].id;
+                }
                 return self.$Couch.view(view_id, prevquery)
                   .then(function(page) {
                     page.rows.reverse();
                     return page;
                   })
             }
-            var last = page.rows[page.rows.length-1];
             page.next = function () {
+               if (page.rows.length == 0) {
+                  return Promise.reject(null);
+               }
+               var last = page.rows[page.rows.length-1];
                var nextquery = {};
                extend(nextquery, query_args);
                delete nextquery['key'];
