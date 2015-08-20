@@ -43,6 +43,17 @@
         }
     }
 
+    // stringify if needed
+    function assure_stringified(obj, attr) {
+       if (obj && obj[attr]) {
+          try {
+             JSON.parse(obj[attr])
+          } catch (_) {
+             obj[attr] = JSON.stringify(obj[attr]);
+          }
+       }
+    }
+
     function responseURL(xhr) {
         if ('responseURL' in xhr) {
           return xhr.responseURL
@@ -162,14 +173,9 @@
         }
         extend(params, query_args);
 
-        // stringify if needed
-        function assure_string(obj, attr) {
-            if (obj && obj[attr] && typeof obj[attr] !== "string")
-                obj[attr] = JSON.stringify(obj[attr]);
-        }
-        assure_string(params, "key");
-        assure_string(params, "startkey");
-        assure_string(params, "endkey");
+        assure_stringified(params, "key");
+        assure_stringified(params, "startkey");
+        assure_stringified(params, "endkey");
 
         var url = URL(['ddoc', '_view', view_id], params);
         return fetchJSON(url).then(function(resp) {
