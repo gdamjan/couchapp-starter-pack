@@ -65,7 +65,11 @@
              response.status = xhr.status;
              response.statusText = xhr.statusText;
              response.url = responseURL(xhr);
-             response.data = 'response' in xhr ? xhr.response : JSON.parse(xhr.responseText);
+             if ('response' in xhr) {
+                response.data = xhr.response;
+             } else {
+                response.data = JSON.parse(xhr.responseText);
+             }
              resolve(response);
           }
 
