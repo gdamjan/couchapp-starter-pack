@@ -61,13 +61,15 @@ em.stop();
 
 ## Push to CouchDB
 
+Use the [couchapp](https://github.com/couchapp/couchapp/) tool:
+
 ```bash
-$ erica push dbname
+$ couchapp push dbname
 ==> Successfully pushed. You can browse it at: http://localhost:5984/dbname/_design/helloworld/_rewrite/
 ```
 or
 ```bash
-$ erica push https://user:pass@db.example.net/dbname
+$ couchapp push https://user:pass@db.example.net/dbname
 ==> Successfully pushed. You can browse it at: https://user:pass@db.example.net/dbname/_design/helloworld/_rewrite/
 ```
 
