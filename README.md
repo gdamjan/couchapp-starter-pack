@@ -36,13 +36,19 @@ $Couch.view('v1', {include_docs:true})
   .then((result) => result.rows.map((row)=> console.log(row.doc._rev)))
 ```
 
-### Pagination (WIP)
+### Pagination
 
 ```javascript
-var pagenext;
+function do_the_page(page) {
+  page.rows.map( (row) => console.log(row.id) );
+}
+
 $Couch.view('v1', {include_docs:true})
-  .then((result) => { pagenext = result.paginate.next; return result})
-  .then((result) => { result.rows.map( (row) => console.log(row.id) ) })
+  .then((page) => { do_the_page(page); return page; })   // prints first page
+  .then( (page) => {return page.next() } )
+  .then((page) => { do_the_page(page); return page; })   // prints second page
+  .then( (page) => {return page.next() } )
+  .then((page) => { do_the_page(page); return page; })   // prints third page
 ```
 
 ### Changes
